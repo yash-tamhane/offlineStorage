@@ -17,6 +17,12 @@ public interface UserDao {
     @Query("SELECT * FROM usermodel")
     List<UserModel> getCatcheData();
 
-    @Query("SELECT * FROM usermodel WHERE user_id = :user_id ORDER BY timestamp DESC")
-    List<Results> getSyncStatus(long user_id);
+    @Query("SELECT * FROM usermodel WHERE user_id = :user_id ")
+    List<Results> setSyncStatus(long user_id);
+
+    @Query("UPDATE usermodel SET sync_pending =:isSync WHERE user_id = :id")
+    void updateSyncStatus(int id,String isSync );
+
+    @Query("SELECT sync_pending FROM usermodel ")
+    List<String> getSyncStatus();
 }

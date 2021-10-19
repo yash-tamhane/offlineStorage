@@ -35,6 +35,9 @@ public class Name {
         this.last = last;
     }
 
+    public Name() {
+    }
+
     public String getLast ()
     {
         return last;

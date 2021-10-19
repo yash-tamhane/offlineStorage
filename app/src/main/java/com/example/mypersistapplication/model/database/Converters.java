@@ -7,18 +7,24 @@ import com.example.mypersistapplication.model.Picture;
 import com.example.mypersistapplication.model.Results;
 import com.example.mypersistapplication.model.UserList;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+
 
 public class Converters {
+
+    @TypeConverter
+    public Name getStringToName (String name) {
+         return new Name();
+    }
 
     @TypeConverter
     public String getNames(Name name) {
         return name.toString();
     }
 
-    @TypeConverter
-    public Name getStringToName (String name) {
-        return new Gson().fromJson(name, Name.class);
-    }
+
 
     @TypeConverter
     public String getPicture(Picture picture) {
@@ -27,7 +33,7 @@ public class Converters {
 
     @TypeConverter
     public Picture getStringToPicture(String picture) {
-        return new Gson().fromJson(picture, Picture.class);
+        return new Picture();
     }
 
     @TypeConverter

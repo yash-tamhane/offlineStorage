@@ -21,11 +21,13 @@ import com.squareup.picasso.Picasso;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.List;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
     private ArrayList<UserList> resultsList;
     private ArrayList<UserModel> ofllineResults;
+    private List<String> requestState;
     private Context context;
     private int position = -1 ;
     private ClickListner clickListner;
@@ -49,7 +51,18 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        if(resultsList != null) {
+
+        if(requestState.size() != 0 && requestState.get(position) != null) {
+            holder.declineButton.setVisibility(View.GONE);
+            holder.acceptButton.setVisibility(View.GONE);
+            holder.requestStatus.setVisibility(View.VISIBLE);
+            holder.requestStatus.setText(requestState.get(position));
+        } else {
+            holder.declineButton.setVisibility(View.VISIBLE);
+            holder.acceptButton.setVisibility(View.VISIBLE);
+            holder.requestStatus.setVisibility(View.GONE);
+        }
+        if(resultsList.size() != 0) {
             UserList userList = resultsList.get(position);
             Results results = userList.getResults()[position];
             Picasso.get().load(results.getUserProfile().getThumbnail()).placeholder(R.drawable.user).into(holder.image);
@@ -60,7 +73,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         } else {
             UserModel userModel = ofllineResults.get(position);
             Picasso.get().load(userModel.getPicture().getThumbnail()).placeholder(R.drawable.user).into(holder.image);
-            holder.userName.setText(userModel.getName().getTitle() + " " + userModel.getName().getFirst() + " " + userModel.getName().getLast());
+            holder.userName.setText(userModel.getName().getFirst());
             holder.userEmail.setText(userModel.getEmail());
             holder.userContact.setText(userModel.getPhone());
             holder.userGender.setText(userModel.getGender());
@@ -70,7 +83,18 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return resultsList.size();
+        if (resultsList.size() != 0) {
+            return resultsList.size();
+        } else if (ofllineResults.size() != 0) {
+            return ofllineResults.size();
+        } else {
+            return 0;
+        }
+    }
+
+    public List<String> dataOfCurrentRequestStatus(List<String> currentRequestState) {
+        requestState = currentRequestState;
+      return  requestState;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -105,6 +129,4 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
         }
     }
-
-
 }

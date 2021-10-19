@@ -42,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<UserList> listOfResults = new ArrayList<>();
     private ArrayList<UserModel> ofllineResults = new ArrayList<>();
     private UserDatabase userDatabase;
-    private UserModel userModel;
     private UserDataViewModel userDataViewModel;
     private TextView resultStatus;
 
@@ -59,7 +58,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
+        userDataViewModel = ViewModelProviders.of(this).get(UserDataViewModel.class);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        observeRequestListStatus();
         userAdapter = new UserAdapter(listOfResults,ofllineResults,getBaseContext());
+        getUserList();
         userAdapter.setClickListner(new ClickListner() {
             @Override
             public void onPositionClicked(int position,String status) {
@@ -73,18 +81,13 @@ public class MainActivity extends AppCompatActivity {
                         .findViewById(R.id.decline).setVisibility(View.GONE);
                 if(status.equalsIgnoreCase("accept")) {
                     resultStatus.setText("Request is accepted");
+                    userDataViewModel.setRequestStatus(position,"Request is accepted");
                 } else if (status.equalsIgnoreCase("decline")){
+                    userDataViewModel.setRequestStatus(position,"Request is decline");
                     resultStatus.setText("Request is decline");
                 }
             }
         });
-        userDataViewModel = ViewModelProviders.of(this).get(UserDataViewModel.class);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        getUserList();
     }
 
     private void getUserList() {
@@ -101,28 +104,35 @@ public class MainActivity extends AppCompatActivity {
                     }
                     userRecycleView.setAdapter(userAdapter);
                     userRecycleView.setLayoutManager(new LinearLayoutManager(getBaseContext()));
-                } else {
-                    userDataViewModel.fetchUserData().observe(MainActivity.this, userData -> {
-                        listOfResults.clear();
-                        if(userData.size() != 0) {
-                            for (int i = 0; i< userData.size(); i++) {
-                                ofllineResults.add(userData.get(i));
-                            }
-                        } else {
-                            userRecycleView.setVisibility(View.GONE);
-                        }
-                    });
                 }
             }
 
 
             @Override
             public void onFailure(Call<UserList> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
                 Log.d("userData",t.getCause().getLocalizedMessage());
+
+                userDataViewModel.fetchUserData().observe(MainActivity.this, userData -> {
+                    if(userData.size() != 0) {
+                        for (int i = 0; i< userData.size(); i++) {
+                            ofllineResults.add(userData.get(i));
+                        }
+                        userAdapter.notifyDataSetChanged();
+                        userRecycleView.setAdapter(userAdapter);
+                        userRecycleView.setLayoutManager(new LinearLayoutManager(getBaseContext()));
+                    } else {
+                        userRecycleView.setVisibility(View.GONE);
+                    }
+                });
 
             }
 
+        });
+    }
+
+    private void observeRequestListStatus () {
+        userDataViewModel.fetchRequestStatusResult().observe(this,currentRequestState -> {
+            userAdapter.dataOfCurrentRequestStatus(currentRequestState);
         });
     }
 }

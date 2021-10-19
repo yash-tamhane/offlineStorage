@@ -11,7 +11,7 @@ import com.example.mypersistapplication.model.UserList;
 @Entity
 public class UserModel  {
 
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     private int user_id;
 
     private Name name;
@@ -24,7 +24,7 @@ public class UserModel  {
 
     private Picture picture;
 
-    public UserModel(int user_id, Name name, String email, String gender, String phone, Picture picture, long timestamp, boolean syncPending) {
+    public UserModel(int user_id, Name name, String email, String gender, String phone, Picture picture, long timestamp, String syncPending) {
         this.user_id = user_id;
         this.name = name;
         this.email = email;
@@ -38,8 +38,12 @@ public class UserModel  {
     @ColumnInfo(name = "timestamp")
     private long timestamp;
 
+    public String getSyncPending() {
+        return syncPending;
+    }
+
     @ColumnInfo(name = "sync_pending")
-    private boolean syncPending;
+    private String syncPending;
 
     public int getUser_id() {
         return user_id;
@@ -97,11 +101,7 @@ public class UserModel  {
         this.timestamp = timestamp;
     }
 
-    public boolean isSyncPending() {
-        return syncPending;
-    }
-
-    public void setSyncPending(boolean syncPending) {
+    public void setSyncPending(String syncPending) {
         this.syncPending = syncPending;
     }
 }
